@@ -16,22 +16,18 @@ class FriendItem extends StatelessWidget {
   final void Function(FriendHive friend, int index) onDeleteFriend;
   final void Function(FriendHive newriend, int index) onUpdateFriend;
 
-  // ignore: unused_element
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.green.shade100,
-      ),
       child: InkWell(
         onTap: () {
           onSelectFriend(friend);
         },
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: Colors.blue,
+            backgroundColor: Colors
+                .primaries[friend.name.codeUnitAt(0) % Colors.primaries.length],
             foregroundColor: Colors.white,
             radius: 30,
             child: Text(
