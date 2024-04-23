@@ -2,10 +2,8 @@ import 'package:bunche/data/datasources/local/hive_database.dart';
 import 'package:bunche/data/datasources/local/hive_qrcode.dart';
 import 'package:bunche/features/manage_qr_code/view/friend_detail.dart';
 import 'package:bunche/features/manage_qr_code/view/friend_list.dart';
-import 'package:bunche/features/manage_qr_code/view/group_list.dart';
 import 'package:bunche/features/manage_qr_code/view/new_friend.dart';
 import 'package:bunche/features/manage_qr_code/view/new_qr_code.dart';
-import 'package:bunche/features/manage_qr_code/view/update_friend.dart';
 import 'package:flutter/material.dart';
 
 class AppRoutes {
@@ -13,17 +11,15 @@ class AppRoutes {
     switch (settings.name) {
       case '/friends':
         return MaterialPageRoute(builder: (_) => const FriendList());
-      case '/group':
-        return MaterialPageRoute(builder: (_) => const GroupList());
       case '/AddFriend':
-        return MaterialPageRoute(builder: (_) => NewFriendProfile());
+        return MaterialPageRoute(builder: (_) => const NewFriendProfile());
       case '/AddQrcode':
         return MaterialPageRoute<QRCodeHive?>(
             builder: (_) => const NewQRcode());
       case '/UpdateFriend':
         final args = settings.arguments as List;
         return MaterialPageRoute(
-            builder: (_) => UpdateFriendProfile(
+            builder: (_) => NewFriendProfile(
                   friendData: args[0] as FriendHive,
                   index: args[1] as int,
                 ));

@@ -1,28 +1,42 @@
-// import 'package:bunche/features/manage_qr_code/view/widgets/dialog.dart';
-// import 'package:bunche/features/manage_qr_code/view/widgets/form_input.dart';
-// import 'package:bunche/features/manage_qr_code/view/widgets/image_input.dart';
-import 'package:bunche/data/models/qrcode.dart';
+import 'package:bunche/data/datasources/local/hive_database.dart';
 import 'package:bunche/features/manage_qr_code/view/widgets/qrcode_list_preview.dart';
 import 'package:bunche/features/manage_qr_code/view_model/friend_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class NewFriendProfile extends StatefulWidget {
-  const NewFriendProfile({super.key});
+  const NewFriendProfile({super.key, this.index, this.friendData});
+  final int? index;
+  final FriendHive? friendData;
 
   @override
   State<NewFriendProfile> createState() => _NewFriendProfileState();
 }
 
 class _NewFriendProfileState extends State<NewFriendProfile> {
+  late FriendViewModel viewmodel;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppbar(context), body: _buildBody(context));
+    viewmodel = Provider.of<FriendViewModel>(context);
+    return Scaffold(
+        appBar: _buildAppbar(context, viewmodel), body: _buildBody(context));
   }
 
-  _buildAppbar(BuildContext context) {
+  _buildAppbar(BuildContext context, FriendViewModel viewmodel) {
     return AppBar(
       title: const Text('New Friend Profile'),
+      actions: [
+        TextButton(
+            onPressed: () async {
+              widget.index != null
+                  ? await viewmodel.editFriendProfile(widget.index)
+                  : await viewmodel.saveProfile();
+            },
+            child: const Text(
+              'Save',
+              style: TextStyle(fontSize: 16),
+            ))
+      ],
     );
   }
 
@@ -30,36 +44,38 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
     return Consumer<FriendViewModel>(builder: (context, viewmodel, _) {
       return Form(
         key: viewmodel.formkey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                validator: (value) {
-                  return viewmodel.validateTextFormFiled(value);
-                },
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), labelText: 'Name'),
-                controller: viewmodel.nameController,
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  decoration: BoxDecoration(color: Colors.green.shade200),
+                  child: TextFormField(
+                    validator: (value) {
+                      return viewmodel.validateTextFormFiled(value);
+                    },
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), labelText: 'Name'),
+                    controller: viewmodel.nameController,
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onBackground),
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: () => viewmodel.addQRCode(context),
                 icon: const Icon(Icons.add),
                 label: const Text('Add QRcode'),
               ),
               const SizedBox(height: 20),
-              QrcodeListPreview(qrcodes: viewmodel.qrCodes),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  await viewmodel.saveProfile();
-                },
-                icon: const Icon(Icons.save),
-                label: const Text('Save Profile'),
-              ),
+              Expanded(
+                  flex: 6,
+                  child: widget.index != null
+                      ? QrcodeListPreview(qrcodes: widget.friendData!.qrCodes)
+                      : QrcodeListPreview(qrcodes: viewmodel.qrcodes)),
             ],
           ),
         ),
