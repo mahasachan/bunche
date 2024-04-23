@@ -17,9 +17,12 @@ class NavigationService {
     await navigatorKey.currentState!.pushNamed(routeName, arguments: arguments);
   }
 
-  Object navigateToAwaitData(String routeName) async {
-    final data = (await navigatorKey.currentState!.pushNamed(routeName))!;
-    return data;
+  navigateToAwaitData<T>(String routeName) async {
+    (await navigatorKey.currentState!.pushNamed(routeName)) as T;
+  }
+
+  nvigateBackWithData(Object data) {
+    navigatorKey.currentState!.pop(data);
   }
 
   replaceWith(String routeName) {
@@ -40,5 +43,13 @@ class NavigationService {
         ),
       );
     });
+  }
+
+  showSnackBar(String message) {
+    ScaffoldMessenger.of(navigatorKey.currentState!.context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }
