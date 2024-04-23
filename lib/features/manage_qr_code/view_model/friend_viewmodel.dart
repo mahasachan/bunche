@@ -18,6 +18,11 @@ class FriendViewModel extends ChangeNotifier {
   List<QRCodeHive> get qrcodes => qrCodes;
   List<QRCodeHive> newQrCodes = [];
 
+  bool _isFetching = false;
+  bool get isFetching => _isFetching;
+
+  // controllers
+
   final TextEditingController nameController = TextEditingController();
 
   @override
@@ -34,7 +39,10 @@ class FriendViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchFriends() async {
+    _isFetching = true;
+    notifyListeners();
     _friends = await _friendService.getAllFriends();
+    _isFetching = false;
     notifyListeners();
   }
 
@@ -68,7 +76,7 @@ class FriendViewModel extends ChangeNotifier {
       await fetchFriends();
     }
     nameController.clear();
-    qrCodes.clear();
+    // qrCodes.clear();
     _navigationService.goBack();
     _navigationService.navigateTo('/friends');
   }

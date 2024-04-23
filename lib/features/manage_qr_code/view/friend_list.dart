@@ -60,12 +60,16 @@ class _FriendListState extends State<FriendList> {
   _buildBody() {
     return Consumer<FriendViewModel>(
       builder: (context, viewmodel, _) {
+        if (viewmodel.isFetching) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         if (viewmodel.friends.isEmpty) {
           return const Center(
             child: Text('You don\'t have any friends'),
           );
         }
-
         return friendListView(viewmodel);
       },
     );
