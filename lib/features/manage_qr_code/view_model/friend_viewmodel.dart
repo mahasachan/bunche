@@ -2,21 +2,19 @@ import 'package:bunche/core/services/friend_service.dart';
 import 'package:bunche/core/services/navigator.dart';
 import 'package:bunche/data/datasources/local/hive_database.dart';
 import 'package:bunche/data/datasources/local/hive_qrcode.dart';
-// import 'package:bunche/data/models/friend.dart';
 import 'package:bunche/data/repository/friend_repository_impl.dart';
 import 'package:flutter/material.dart';
 
 class FriendViewModel extends ChangeNotifier {
   final NavigationService _navigationService;
-  // final GlobalKey formkey = GlobalKey<FormState>();
-  final formkey = GlobalKey<FormState>();
   final FriendService _friendService = FriendService(FriendRepositoryImpl());
+  final formkey = GlobalKey<FormState>();
   List<FriendHive> _friends = [];
   List<FriendHive> get friends => _friends;
 
   List<QRCodeHive> qrCodes = [];
   List<QRCodeHive> get qrcodes => qrCodes;
-  List<QRCodeHive> newQrCodes = [];
+  // List<QRCodeHive> newQrCodes = [];
 
   bool _isFetching = false;
   bool get isFetching => _isFetching;
@@ -88,6 +86,32 @@ class FriendViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchQRCode(int index) async {
+    final friend = await fetchFriend(index);
+    qrCodes = friend.qrCodes;
+    notifyListeners();
+    // qrCodes = newQrCodes;
+    // notifyListeners();
+  }
+
+  Future<void> deleteQRCode(int index) async {
+    final friend = await fetchFriend(index);
+    final name = friend.name;
+    final qrcodesInFriend = friend.qrCodes;
+    try {
+      qrcodesInFriend.removeAt(index);
+    } catch (e) {
+      _navigationService.showSnackBar('Error deleting QR Code');
+    }
+    FriendHive updatedFriend = FriendHive(name: name, qrCodes: qrcodesInFriend);
+
+    final isSuccess = await _friendService.updateFriend(updatedFriend, index);
+    if (isSuccess) {
+      fetchFriends();
+      _navigationService.showSnackBar('QR Code deleted successfully');
+    }
+  }
+
   navigateToUpdate(FriendHive friend, int index) async {
     nameController.text = friend.name;
     qrCodes = friend.qrCodes;
@@ -97,8 +121,6 @@ class FriendViewModel extends ChangeNotifier {
 
   Future<void> editFriendProfile(index) async {
     String name = nameController.text.trim();
-    // List<QRCodeHive> originalQrCodes = friends[index].qrCodes.toList();
-    // qrCodes.addAll(originalQrCodes);
     FriendHive editedFriend = FriendHive(
       name: name,
       qrCodes: qrCodes,
@@ -109,7 +131,6 @@ class FriendViewModel extends ChangeNotifier {
     }
     _navigationService.goBack();
     nameController.clear();
-    // notifyListeners();
   }
 
   Future<void> deleteFriend(FriendHive friend, int index) async {
@@ -118,6 +139,7 @@ class FriendViewModel extends ChangeNotifier {
     _navigationService.goBack();
     if (isSuccess) {
       _friends.removeAt(index);
+      _navigationService.showSnackBar('Friend deleted successfully');
       notifyListeners();
     }
   }
