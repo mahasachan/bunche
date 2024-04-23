@@ -26,7 +26,6 @@ class FriendRepositoryImpl implements FriendRepository {
   Future<FriendHive> getFriend(int index) async {
     final box = await _friendBox;
     final FriendHive? friend = box.getAt(index);
-    debugPrint('friend: ${friend.toString()}');
     if (friend != null) {
       return friend;
     } else {
