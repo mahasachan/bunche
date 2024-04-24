@@ -16,6 +16,8 @@ class NewQRcode extends StatefulWidget {
 class _NewQRcodeState extends State<NewQRcode> {
   final _accountNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  // The selected image file.
   File? _selectedImage;
 
   @override
@@ -73,14 +75,14 @@ class _NewQRcodeState extends State<NewQRcode> {
       return;
     }
 
+    final newQRcode = QRCodeHive(
+      accountName: _accountNameController.text,
+      qrCodeImage: await convertFileToBytes(_selectedImage!),
+    );
+
+    // navigationService.nvigateBackWithData(newQRcode);
     if (context.mounted) {
-      Navigator.pop(
-        context,
-        QRCodeHive(
-          accountName: _accountNameController.text,
-          qrCodeImage: await convertFileToBytes(_selectedImage!),
-        ),
-      );
+      Navigator.pop(context, newQRcode);
     }
   }
 }
