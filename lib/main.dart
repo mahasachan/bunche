@@ -1,6 +1,7 @@
 import 'package:bunche/config/routes/routes.dart';
 import 'package:bunche/core/services/navigator.dart';
 import 'package:bunche/data/datasources/local/hive_database.dart';
+import 'package:bunche/data/datasources/local/hive_group.dart';
 import 'package:bunche/data/datasources/local/hive_qrcode.dart';
 import 'package:bunche/features/manage_qr_code/view/friend_list.dart';
 import 'package:bunche/features/manage_qr_code/view_model/friend_viewmodel.dart';
@@ -12,6 +13,8 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(QRCodeHiveAdapter());
   Hive.registerAdapter(FriendHiveAdapter());
+  Hive.registerAdapter(GroupHiveAdapter());
+
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<FriendViewModel>(
         create: (_) => FriendViewModel(NavigationService.instance)),
