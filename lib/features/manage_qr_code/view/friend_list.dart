@@ -87,7 +87,9 @@ class _FriendListState extends State<FriendList> {
           onDeleteFriend: (friend, index) {
             viewModel.deleteFriend(friend, index);
           },
-          onSelectFriend: viewModel.selectFriend,
+          onSelectFriend: (index) {
+            viewModel.selectFriend(index);
+          },
         );
       },
       itemCount: viewModel.friends.length,
