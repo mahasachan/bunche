@@ -48,6 +48,7 @@ class NavigationService {
   showSnackBar(String message) {
     ScaffoldMessenger.of(navigatorKey.currentState!.context).showSnackBar(
       SnackBar(
+        duration: const Duration(seconds: 1),
         content: Text(message),
       ),
     );
