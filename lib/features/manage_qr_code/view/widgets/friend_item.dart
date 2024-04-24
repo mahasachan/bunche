@@ -12,7 +12,7 @@ class FriendItem extends StatelessWidget {
 
   final FriendHive friend;
   final int index;
-  final void Function(FriendHive friend) onSelectFriend;
+  final void Function(int index) onSelectFriend;
   final void Function(FriendHive friend, int index) onDeleteFriend;
   final void Function(FriendHive newriend, int index) onUpdateFriend;
 
@@ -22,7 +22,7 @@ class FriendItem extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: InkWell(
         onTap: () {
-          onSelectFriend(friend);
+          onSelectFriend(index);
         },
         child: ListTile(
           leading: CircleAvatar(
@@ -36,7 +36,7 @@ class FriendItem extends StatelessWidget {
             ),
           ),
           title: Text(friend.name),
-          subtitle: Text(friend.qrCodes.length.toString()),
+          subtitle: Text(friend.groupName![0]),
           trailing: PopupMenuButton(
               child: const Icon(Icons.more_vert),
               itemBuilder: (context) {
@@ -53,8 +53,6 @@ class FriendItem extends StatelessWidget {
               },
               onSelected: (String value) {
                 if (value == 'Edit') {
-                  debugPrint('number of len(qrcodes)');
-                  debugPrint(friend.qrCodes.length.toString());
                   onUpdateFriend(friend, index);
                 } else if (value == 'Delete') {
                   onDeleteFriend(friend, index);
