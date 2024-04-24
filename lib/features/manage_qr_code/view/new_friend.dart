@@ -15,6 +15,9 @@ class NewFriendProfile extends StatefulWidget {
 
 class _NewFriendProfileState extends State<NewFriendProfile> {
   late FriendViewModel viewmodel;
+
+  // List<String> items = ['No group', 'item1', 'item2', 'item3'];
+  // String selectedItem = '';
   @override
   Widget build(BuildContext context) {
     viewmodel = Provider.of<FriendViewModel>(context);
@@ -28,9 +31,9 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
       actions: [
         TextButton(
             onPressed: () async {
-              widget.index != null
-                  ? await viewmodel.editFriendProfile(widget.index)
-                  : await viewmodel.saveProfile();
+              await viewmodel.saveProfile(
+                index: widget.index,
+              );
             },
             child: const Text(
               'Save',
@@ -49,26 +52,71 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(color: Colors.green.shade200),
-                  child: TextFormField(
-                    validator: (value) {
-                      return viewmodel.validateTextFormFiled(value);
-                    },
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Name'),
-                    controller: viewmodel.nameController,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onBackground),
-                  ),
-                ),
+              TextFormField(
+                validator: (value) {
+                  return viewmodel.validateTextFormFiled(value);
+                },
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(), labelText: 'Name'),
+                controller: viewmodel.nameController,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground),
               ),
-              ElevatedButton.icon(
-                onPressed: () => viewmodel.addQRCode(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Add QRcode'),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                    itemCount: viewmodel.selectedGroupName.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(viewmodel.selectedGroupName[index]),
+                      );
+                    }),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // SizedBox(
+                  //   width: 240,
+                  //   child: DropdownButtonFormField(
+                  //       value: viewmodel.selectedGroupName,
+                  //       items: viewmodel.groupNames
+                  //           .map((groupName) => DropdownMenuItem<String>(
+                  //               value: groupName,
+                  //               child: Row(
+                  //                 children: [
+                  //                   Text(groupName),
+                  //                   const SizedBox(width: 10),
+                  //                 ],
+                  //               )))
+                  //           .toList(),
+                  //       onChanged: (value) {
+                  //         viewmodel.setGroupName(value!);
+                  //       }),
+                  // ),
+                  ElevatedButton(
+                    onPressed: () {
+                      viewmodel.navigationToSelectGroup();
+                    },
+                    child: const Text('Select Group'),
+                  ),
+                  // const SizedBox(width: 8),
+                  // ElevatedButton.icon(
+                  //   onPressed: () {
+                  //     // debugPrint('action add group');
+                  //     _showDialog(context);
+                  //   },
+                  //   icon: const Icon(Icons.add),
+                  //   label: const Text('Group'),
+                  // ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () => viewmodel.addQRCode(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('QRcode'),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               Expanded(
