@@ -8,4 +8,5 @@ abstract class GroupRepository {
   Future<GroupHive?> getGroup(int index);
   Future<bool> isGroupExist(String id);
   Future<void> clearGroups();
+  Future<void> addFriendToGroup(int groupIndex, int friendIndex);
 }

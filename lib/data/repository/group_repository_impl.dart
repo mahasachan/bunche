@@ -1,3 +1,4 @@
+import 'package:bunche/data/datasources/local/hive_database.dart';
 import 'package:bunche/data/datasources/local/hive_group.dart';
 import 'package:bunche/features/manage_qr_code/respository/group_repository.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +77,20 @@ class GroupRepositoryImpl implements GroupRepository {
     try {
       final box = await _groupBox;
       await box.putAt(index, group);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  Future<void> addFriendToGroup(int groupIndex, int friendIndex) async {
+    try {
+      final box = await _groupBox;
+      final group = box.getAt(groupIndex);
+      // final boxFriend
+      final friend = box.getAt(friendIndex);
+      // group!.friends?.add(friend!);
+      // await box.putAt(groupIndex, group);
     } catch (e) {
       debugPrint(e.toString());
     }

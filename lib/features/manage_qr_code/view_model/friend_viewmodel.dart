@@ -1,19 +1,38 @@
 import 'package:bunche/core/services/friend_service.dart';
+import 'package:bunche/core/services/group_service.dart';
 import 'package:bunche/core/services/navigator.dart';
 import 'package:bunche/data/datasources/local/hive_database.dart';
+import 'package:bunche/data/datasources/local/hive_group.dart';
 import 'package:bunche/data/datasources/local/hive_qrcode.dart';
 import 'package:bunche/data/repository/friend_repository_impl.dart';
+import 'package:bunche/data/repository/group_repository_impl.dart';
 import 'package:flutter/material.dart';
 
 class FriendViewModel extends ChangeNotifier {
   final NavigationService _navigationService;
   final FriendService _friendService = FriendService(FriendRepositoryImpl());
+  final GroupService _groupService = GroupService(GroupRepositoryImpl());
+
   final formkey = GlobalKey<FormState>();
+  final groupNameFormKey = GlobalKey<FormState>();
   List<FriendHive> _friends = [];
   List<FriendHive> get friends => _friends;
 
   List<QRCodeHive> qrCodes = [];
   List<QRCodeHive> get qrcodes => qrCodes;
+
+  final List<String> _groupNames = [];
+  List<String> get groupNames => _groupNames;
+
+  late List<bool> _isGroupNameSelected = List.filled(_groupNames.length, false);
+  List<bool> get isGroupNameSelected => _isGroupNameSelected;
+
+  final Map<String, bool> _isGroupNameSelectedMap = {};
+  Map<String, bool> get isGroupNameSelectedMap => _isGroupNameSelectedMap;
+
+  List<String> _selectedGroupName = [];
+  List<String> get selectedGroupName => _selectedGroupName;
+
   // List<QRCodeHive> newQrCodes = [];
 
   bool _isFetching = false;
@@ -22,11 +41,11 @@ class FriendViewModel extends ChangeNotifier {
   // controllers
 
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController groupNameController = TextEditingController();
 
   @override
   void dispose() {
     nameController.dispose();
-    // qrCodes.clear();
     super.dispose();
   }
 
@@ -34,6 +53,7 @@ class FriendViewModel extends ChangeNotifier {
 
   FriendViewModel(this._navigationService) {
     fetchFriends();
+    fetchGroups();
   }
 
   Future<void> fetchFriends() async {
@@ -50,31 +70,44 @@ class FriendViewModel extends ChangeNotifier {
     // notifyListeners();
   }
 
-  void selectFriend(FriendHive friend) async {
+  void selectFriend(int index) async {
+    final friend = await fetchFriend(index);
+    // qrCodes = friend.qrCodes;
+    debugPrint('selected friend: $friend');
     await _navigationService.navigateToWithArguments('/FriendProfile', friend);
   }
 
   navigateToCreate() async {
     nameController.clear();
+    groupNameController.clear();
+    _selectedGroupName = [];
+    _isGroupNameSelected = List.filled(_groupNames.length, false);
     qrCodes = [];
     await _navigationService.navigateTo('/AddFriend');
   }
 
-  Future<void> saveProfile() async {
+  Future<void> saveProfile({int? index}) async {
     String name = nameController.text.trim();
     FriendHive newFriend = FriendHive(
       name: name,
       qrCodes: qrCodes,
+      groupName: _selectedGroupName,
     );
     if (!formkey.currentState!.validate()) {
       return;
     }
-    final isSuccess = await _friendService.saveFriend(newFriend);
+    bool isSuccess;
+    if (index != null) {
+      isSuccess = await _friendService.updateFriend(newFriend, index);
+    } else {
+      isSuccess = await _friendService.saveFriend(newFriend);
+    }
     if (isSuccess) {
-      await fetchFriends();
+      fetchFriends();
     }
     nameController.clear();
-    // qrCodes.clear();
+    _selectedGroupName = [];
+    _isGroupNameSelected = List.filled(_groupNames.length, false);
     _navigationService.goBack();
     _navigationService.navigateTo('/friends');
   }
@@ -90,8 +123,6 @@ class FriendViewModel extends ChangeNotifier {
     final friend = await fetchFriend(index);
     qrCodes = friend.qrCodes;
     notifyListeners();
-    // qrCodes = newQrCodes;
-    // notifyListeners();
   }
 
   Future<void> deleteQRCode(int index) async {
@@ -104,7 +135,6 @@ class FriendViewModel extends ChangeNotifier {
       _navigationService.showSnackBar('Error deleting QR Code');
     }
     FriendHive updatedFriend = FriendHive(name: name, qrCodes: qrcodesInFriend);
-
     final isSuccess = await _friendService.updateFriend(updatedFriend, index);
     if (isSuccess) {
       fetchFriends();
@@ -119,19 +149,19 @@ class FriendViewModel extends ChangeNotifier {
         .navigateToWithArguments('/UpdateFriend', [friend, index]);
   }
 
-  Future<void> editFriendProfile(index) async {
-    String name = nameController.text.trim();
-    FriendHive editedFriend = FriendHive(
-      name: name,
-      qrCodes: qrCodes,
-    );
-    final isSuccess = await _friendService.updateFriend(editedFriend, index);
-    if (isSuccess) {
-      fetchFriends();
-    }
-    _navigationService.goBack();
-    nameController.clear();
-  }
+  // Future<void> editFriendProfile(int? index) async {
+  //   String name = nameController.text.trim();
+  //   FriendHive editedFriend = FriendHive(
+  //     name: name,
+  //     qrCodes: qrCodes,
+  //   );
+  //   final isSuccess = await _friendService.updateFriend(editedFriend, index);
+  //   if (isSuccess) {
+  //     fetchFriends();
+  //   }
+  //   _navigationService.goBack();
+  //   nameController.clear();
+  // }
 
   Future<void> deleteFriend(FriendHive friend, int index) async {
     _navigationService.showLoader();
@@ -144,9 +174,84 @@ class FriendViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchGroups() async {
+    final List<GroupHive> grouphive = await _groupService.getAllGroups();
+    for (final group in grouphive) {
+      _groupNames.add(group.groupName);
+    }
+    notifyListeners();
+    debugPrint('groupName: $_groupNames');
+  }
+
+  navigationToSelectGroup() async {
+    await _navigationService.navigateTo('/SelectGroup');
+  }
+
+  Future<void> setGroup(String groupName, bool isSelected, int index) async {
+    if (isSelected) {
+      _selectedGroupName.add(groupName);
+      notifyListeners();
+      _navigationService.showSnackBar('add to $groupName');
+    } else {
+      _selectedGroupName.remove(groupName);
+      notifyListeners();
+      _navigationService.showSnackBar('remove from $groupName');
+    }
+    _isGroupNameSelected[index] = isSelected;
+    notifyListeners();
+    debugPrint('selectedGroupName: $_selectedGroupName');
+  }
+
+  Future<void> addGroupName() async {
+    final newGroupName = groupNameController.text.trim();
+
+    if (!groupNameFormKey.currentState!.validate()) {
+      groupNameController.clear();
+      return;
+    }
+    final GroupHive newGroupHiveName = GroupHive(groupName: newGroupName);
+    await _groupService.addGroup(newGroupHiveName);
+
+    _groupNames.add(newGroupName);
+    // _selectedGroupName = newGroupName;
+    notifyListeners();
+    _navigationService.goBack();
+    groupNameController.clear();
+    _navigationService.showSnackBar('Group name added successfully');
+  }
+
+  Future<void> addFriendToGroup(FriendHive friend, int index) async {
+    final updatedFriend = FriendHive(
+      name: friend.name,
+      qrCodes: friend.qrCodes,
+      // groupName: _selectedGroupName,
+    );
+    _friendService.updateFriend(updatedFriend, index);
+    _navigationService.goBack();
+    _navigationService.showSnackBar('Friend added to group successfully');
+  }
+
+  // validator
+  String? validateGroupName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'This field is required';
+    } else if (value.length > 30) {
+      return 'Input must be less than 30 characters';
+    } else if (value.contains(' ')) {
+      return 'Input must not contain spaces';
+    } else if (_groupNames.contains(value)) {
+      return 'Group name already exists';
+    }
+    return null;
+  }
+
   String? validateTextFormFiled(String? value) {
     if (value == null || value.isEmpty) {
       return 'This field is required';
+    } else if (value.length > 30) {
+      return 'Input must be less than 30 characters';
+    } else if (value.contains(' ')) {
+      return 'Input must not contain spaces';
     }
     return null;
   }
