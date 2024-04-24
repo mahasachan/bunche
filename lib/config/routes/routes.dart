@@ -4,6 +4,7 @@ import 'package:bunche/features/manage_qr_code/view/friend_detail.dart';
 import 'package:bunche/features/manage_qr_code/view/friend_list.dart';
 import 'package:bunche/features/manage_qr_code/view/new_friend.dart';
 import 'package:bunche/features/manage_qr_code/view/new_qr_code.dart';
+import 'package:bunche/features/manage_qr_code/view/select_group.dart';
 import 'package:flutter/material.dart';
 
 class AppRoutes {
@@ -27,6 +28,8 @@ class AppRoutes {
         return MaterialPageRoute(
             builder: (_) =>
                 FriendDetail(friend: settings.arguments as FriendHive));
+      case '/SelectGroup':
+        return MaterialPageRoute(builder: (_) => const SelectGroup());
 
       default:
         return MaterialPageRoute(
