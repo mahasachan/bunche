@@ -56,6 +56,7 @@ class CardQrcode extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       // Perform some action
+                      debugPrint('action edit');
                     },
                     child: const Text('Edit'),
                   ),
