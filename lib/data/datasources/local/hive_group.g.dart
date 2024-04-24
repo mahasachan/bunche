@@ -8,7 +8,7 @@ part of 'hive_group.dart';
 
 class GroupHiveAdapter extends TypeAdapter<GroupHive> {
   @override
-  final int typeId = 0;
+  final int typeId = 2;
 
   @override
   GroupHive read(BinaryReader reader) {
@@ -18,7 +18,7 @@ class GroupHiveAdapter extends TypeAdapter<GroupHive> {
     };
     return GroupHive(
       groupName: fields[1] as String,
-      friends: (fields[2] as List).cast<FriendHive>(),
+      friends: (fields[2] as List?)?.cast<FriendHive>(),
     )..id = fields[0] as String;
   }
 

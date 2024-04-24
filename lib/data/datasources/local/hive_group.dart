@@ -6,7 +6,7 @@ part 'hive_group.g.dart';
 
 const uuid = Uuid();
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 2)
 class GroupHive {
   @HiveField(0)
   String id;
@@ -15,11 +15,11 @@ class GroupHive {
   String groupName;
 
   @HiveField(2)
-  List<FriendHive> friends;
+  List<FriendHive>? friends;
 
   GroupHive({
     required this.groupName,
-    required this.friends,
+    this.friends,
   }) : id = uuid.v4();
 
   Map<String, dynamic> toJson() {
