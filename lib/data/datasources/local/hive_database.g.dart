@@ -19,7 +19,7 @@ class FriendHiveAdapter extends TypeAdapter<FriendHive> {
     return FriendHive(
       name: fields[1] as String,
       groupId: fields[2] as String?,
-      groupName: fields[3] as String?,
+      groupName: (fields[3] as List?)?.cast<String>(),
       qrCodes: (fields[4] as List).cast<QRCodeHive>(),
     )..id = fields[0] as String;
   }

@@ -21,7 +21,7 @@ class FriendHive {
   String? groupId;
 
   @HiveField(3)
-  String? groupName;
+  List<String>? groupName;
 
   @HiveField(4)
   List<QRCodeHive> qrCodes;
