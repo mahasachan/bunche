@@ -27,7 +27,9 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
 
   _buildAppbar(BuildContext context, FriendViewModel viewmodel) {
     return AppBar(
-      title: const Text('New Friend Profile'),
+      title: widget.index != null
+          ? const Text('Edit Friend Profile')
+          : const Text('New Friend Profile'),
       actions: [
         TextButton(
             onPressed: () async {
@@ -63,53 +65,16 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
                     color: Theme.of(context).colorScheme.onBackground),
               ),
               const SizedBox(height: 10),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                    itemCount: viewmodel.selectedGroupName.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(viewmodel.selectedGroupName[index]),
-                      );
-                    }),
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // SizedBox(
-                  //   width: 240,
-                  //   child: DropdownButtonFormField(
-                  //       value: viewmodel.selectedGroupName,
-                  //       items: viewmodel.groupNames
-                  //           .map((groupName) => DropdownMenuItem<String>(
-                  //               value: groupName,
-                  //               child: Row(
-                  //                 children: [
-                  //                   Text(groupName),
-                  //                   const SizedBox(width: 10),
-                  //                 ],
-                  //               )))
-                  //           .toList(),
-                  //       onChanged: (value) {
-                  //         viewmodel.setGroupName(value!);
-                  //       }),
-                  // ),
                   ElevatedButton(
                     onPressed: () {
                       viewmodel.navigationToSelectGroup();
                     },
                     child: const Text('Select Group'),
                   ),
-                  // const SizedBox(width: 8),
-                  // ElevatedButton.icon(
-                  //   onPressed: () {
-                  //     // debugPrint('action add group');
-                  //     _showDialog(context);
-                  //   },
-                  //   icon: const Icon(Icons.add),
-                  //   label: const Text('Group'),
-                  // ),
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
                     onPressed: () => viewmodel.addQRCode(context),
@@ -119,15 +84,98 @@ class _NewFriendProfileState extends State<NewFriendProfile> {
                 ],
               ),
               const SizedBox(height: 20),
+              ShowListGroupSeleted(groupNames: viewmodel.selectedGroupName),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'QRcode List',
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onBackground
+                          .withOpacity(0.7),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               Expanded(
                   flex: 6,
                   child: widget.index != null
-                      ? QrcodeListPreview(qrcodes: widget.friendData!.qrCodes)
-                      : QrcodeListPreview(qrcodes: viewmodel.qrcodes)),
+                      ? QrcodeListPreview(
+                          qrcodes: widget.friendData!.qrCodes,
+                          isEdit: true,
+                        )
+                      : QrcodeListPreview(
+                          qrcodes: viewmodel.qrcodes,
+                          isEdit: true,
+                        )),
             ],
           ),
         ),
       );
     });
+  }
+}
+
+class ShowListGroupSeleted extends StatelessWidget {
+  const ShowListGroupSeleted({
+    super.key,
+    required this.groupNames,
+  });
+
+  // final FriendViewModel viewmodel;
+  // final String groupName;
+  // final int numItems;
+  final List<String> groupNames;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      flex: 1,
+      fit: FlexFit.tight,
+      child: GridView.builder(
+          itemCount: groupNames.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 3 / 1,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+          ),
+          itemBuilder: (context, index) {
+            return Container(
+              // margin: const EdgeInsets.all(),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.45),
+                    spreadRadius: 1,
+                    blurRadius: 1,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  groupNames[index],
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            );
+          }),
+    );
   }
 }
