@@ -145,23 +145,16 @@ class FriendViewModel extends ChangeNotifier {
   navigateToUpdate(FriendHive friend, int index) async {
     nameController.text = friend.name;
     qrCodes = friend.qrCodes;
+    _selectedGroupName = friend.groupName!;
+    for (int i = 0; i < _groupNames.length; i++) {
+      if (_selectedGroupName.contains(_groupNames[i])) {
+        _isGroupNameSelected[i] = true;
+      }
+    }
+    notifyListeners();
     await _navigationService
         .navigateToWithArguments('/UpdateFriend', [friend, index]);
   }
-
-  // Future<void> editFriendProfile(int? index) async {
-  //   String name = nameController.text.trim();
-  //   FriendHive editedFriend = FriendHive(
-  //     name: name,
-  //     qrCodes: qrCodes,
-  //   );
-  //   final isSuccess = await _friendService.updateFriend(editedFriend, index);
-  //   if (isSuccess) {
-  //     fetchFriends();
-  //   }
-  //   _navigationService.goBack();
-  //   nameController.clear();
-  // }
 
   Future<void> deleteFriend(FriendHive friend, int index) async {
     _navigationService.showLoader();
