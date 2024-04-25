@@ -36,7 +36,8 @@ class FriendItem extends StatelessWidget {
             ),
           ),
           title: Text(friend.name),
-          subtitle: Text(friend.groupName![0]),
+          // subtitle: Text(friend.qrCodes.length.toString()),
+          // subtitle: Text(friend.groupName![0]),
           trailing: PopupMenuButton(
               child: const Icon(Icons.more_vert),
               itemBuilder: (context) {
