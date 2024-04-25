@@ -8,6 +8,7 @@ abstract class FriendRepository {
   Future<bool> saveFriend(FriendHive friend);
   Future<bool> removeFriend(FriendHive friend, int index);
   Future<bool> updateFriend(FriendHive friend, int index);
+
   // Future<List<QRCode>> getFriendQrcodes(String friendId);
   // Future<void> saveFriendQrcode(QRCode qrcode);
   // Future<void> removeFriendQrcode(QRCode qrcode);
