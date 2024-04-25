@@ -1,6 +1,7 @@
 import 'package:bunche/data/datasources/local/hive_database.dart';
 import 'package:bunche/features/manage_qr_code/view/widgets/qrcode_list_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FriendDetail extends StatelessWidget {
   const FriendDetail({
@@ -19,12 +20,16 @@ class FriendDetail extends StatelessWidget {
 
   _buildAppBar() {
     return AppBar(
-      title: Text('Friend Detail ${friend.name}'),
+      title: Text(friend.name),
     );
   }
 
   _buildBody() {
     debugPrint('friend.qrCodes.length: ${friend.qrCodes.length}');
-    return QrcodeListPreview(qrcodes: friend.qrCodes);
+    return Consumer(
+      builder: (BuildContext context, value, Widget? child) {
+        return QrcodeListPreview(qrcodes: friend.qrCodes);
+      },
+    );
   }
 }
