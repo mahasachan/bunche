@@ -64,12 +64,11 @@ class _SelectGroupState extends State<SelectGroup> {
     return AppBar(
       title: const Text('Select Group'),
       actions: [
-        TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Save',
-              style: TextStyle(fontSize: 16),
-            ))
+        TextButton.icon(
+          onPressed: () {},
+          icon: const Icon(Icons.add),
+          label: const Text('Group'),
+        )
       ],
     );
   }
