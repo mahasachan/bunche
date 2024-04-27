@@ -1,24 +1,19 @@
-import 'package:bunche/config/routes/routes.dart';
-import 'package:bunche/core/services/navigator.dart';
-import 'package:bunche/data/datasources/local/hive_database.dart';
-import 'package:bunche/data/datasources/local/hive_group.dart';
-import 'package:bunche/data/datasources/local/hive_qrcode.dart';
-import 'package:bunche/features/manage_qr_code/view/friend_list.dart';
-import 'package:bunche/features/manage_qr_code/view_model/friend_viewmodel.dart';
+import 'package:bunche/dependency_injection.dart';
+import 'package:bunche/routes.dart';
+import 'package:bunche/src/data/models/friend_list.dart';
+import 'package:bunche/src/modules/friend/list/friend_list_view.dart';
+import 'package:bunche/src/utils/cache/hive_manager.dart';
+import 'package:bunche/src/utils/navigate/navigator.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(QRCodeHiveAdapter());
-  Hive.registerAdapter(FriendHiveAdapter());
-  Hive.registerAdapter(GroupHiveAdapter());
-
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider<FriendViewModel>(
-        create: (_) => FriendViewModel(NavigationService.instance)),
-  ], child: const MyApp()));
+  await HiveManager.initialize();
+  await initializeDependencies();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,7 +25,10 @@ class MyApp extends StatelessWidget {
       navigatorKey: NavigationService.instance.navigatorKey,
       onGenerateRoute: AppRoutes.onGenerateRoute,
       title: 'Bunche',
-      home: const FriendList(),
+      home: MultiProvider(providers: [
+        ChangeNotifierProvider<FriendList>(
+            create: (context) => GetIt.instance.get<FriendList>()),
+      ], child: const FriendListView()),
     );
   }
 }
