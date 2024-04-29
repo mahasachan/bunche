@@ -52,33 +52,39 @@ class _FriendListState extends State<FriendListView> {
             child: CircularProgressIndicator(),
           );
         }
-        debugPrint('friendListData.friends= ${friendListData.friends}');
         if (friendListData.friends.isEmpty) {
           return const Center(
             child: Text('You don\'t have any friends'),
           );
         }
-        return friendListView(friendListData);
+        return Container(
+            decoration: const BoxDecoration(color: Colors.amber),
+            child: friendListView(friendListData));
       },
     );
   }
 
   ListView friendListView(FriendList friendListData) {
     return ListView.builder(
-      reverse: true,
+      // reverse: true,
       itemBuilder: (context, index) {
         return FriendItem(
           index: index,
           friend: friendListData.friends[index],
-          // onUpdateFriend: (friend, index) {
-          //   viewModel.navigateToUpdate(friend, index);
-          // },
-          // onDeleteFriend: (friend, index) {
-          //   viewModel.deleteFriend(friend, index);
-          // },
-          // onSelectFriend: (index) {
-          //   viewModel.selectFriend(index);
-          // },
+          onUpdateFriend: (friend, index) {
+            // viewModel.navigateToUpdate(friend, index);
+            friendListViewModel.navigateToEditFriend(friend, index);
+          },
+          onDeleteFriend: (friend, index) {
+            // friendListData.tryTodeleteFriend(friend);
+            friendListViewModel.tryToDeleteFriend(friend);
+            // viewModel.deleteFriend(friend, index);
+          },
+          onSelectFriend: (id) {
+            friendListViewModel.navigateToFriendDetails(
+                friendListData.friends[index].id,
+                friendListData.friends[index].name);
+          },
         );
       },
       itemCount: friendListData.friends.length,

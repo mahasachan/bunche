@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,6 +34,15 @@ class Friend {
   void tryToAddFriend(Friend friend) {
     name = friend.name;
     qrcodeIds = friend.qrcodeIds;
+  }
+
+  void tryToUpdateFriend(String newName, List<String>? newQrcodesId) {
+    name = newName;
+    // tryToAddQrcodeId(newQrcodeId);
+    // qrcodeIds = newQrcodesId;
+    debugPrint('in tryToUpdateFriend in friend.dart');
+    debugPrint('qrcodeIds: $qrcodeIds');
+    // if (!qrcodeIds!.contains(newQrcodeId)) qrcodeIds!.add(newQrcodeId);
   }
 
   void tryToAddQrcodeId(String qrcodeId) {

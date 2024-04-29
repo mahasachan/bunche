@@ -1,29 +1,38 @@
 import 'package:bunche/src/common/components/qrcode_list_preview.dart';
 import 'package:bunche/src/data/models/friend/friend.dart';
 import 'package:bunche/src/data/models/friend_list.dart';
-// import 'package:bunche/src/data/models/qrcode_list.dart';
-import 'package:bunche/src/modules/friend/create/friend_create_view_model.dart';
+import 'package:bunche/src/data/models/qrcode_list.dart';
+import 'package:bunche/src/modules/friend/modify/friend_modify_view_model.dart';
 import 'package:bunche/src/utils/navigate/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class FriendCreateView extends StatefulWidget {
-  const FriendCreateView({super.key, this.friend, this.index});
-  final Friend? friend;
-  final int? index;
+class FriendModifyView extends StatefulWidget {
+  const FriendModifyView(
+      {super.key, required this.friend, required this.index});
+  final Friend friend;
+  final int index;
 
   @override
-  State<FriendCreateView> createState() => _FriendCreateViewState();
+  State<FriendModifyView> createState() => _FriendModifyViewState();
 }
 
-class _FriendCreateViewState extends State<FriendCreateView> {
-  FriendCreateViewModel friendCreateViewModel =
-      FriendCreateViewModel(NavigationService.instance);
+class _FriendModifyViewState extends State<FriendModifyView> {
+  late FriendModifyViewModel friendModifyViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    friendModifyViewModel =
+        FriendModifyViewModel(NavigationService.instance, widget.friend.id);
+    friendModifyViewModel.nameController.text = widget.friend.name;
+    friendModifyViewModel.qrcodeIds.addAll(widget.friend.qrcodeIds ?? []);
+  }
 
   @override
   void dispose() {
     super.dispose();
-    friendCreateViewModel.dispose();
+    friendModifyViewModel.dispose();
   }
 
   @override
@@ -40,9 +49,7 @@ class _FriendCreateViewState extends State<FriendCreateView> {
       actions: [
         TextButton(
             onPressed: () {
-              if (friendCreateViewModel.formKey.currentState!.validate()) {
-                friendCreateViewModel.onCreateNewFriend();
-              }
+              friendModifyViewModel.onUpdateFriend(widget.friend);
             },
             child: const Text(
               'Save',
@@ -55,7 +62,7 @@ class _FriendCreateViewState extends State<FriendCreateView> {
   _buildBody(BuildContext context) {
     return Consumer<FriendList>(
       builder: (context, friendList, child) => Form(
-        key: friendCreateViewModel.formKey,
+        key: friendModifyViewModel.formKey,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -70,7 +77,7 @@ class _FriendCreateViewState extends State<FriendCreateView> {
                 },
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: 'Name'),
-                controller: friendCreateViewModel.nameController,
+                controller: friendModifyViewModel.nameController,
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.onBackground),
               ),
@@ -88,12 +95,9 @@ class _FriendCreateViewState extends State<FriendCreateView> {
                   const SizedBox(width: 8),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      final qrcodeId =
-                          await friendCreateViewModel.navigateToAddQrcode();
+                      final qrcodeId = await friendModifyViewModel
+                          .navigateToAddQrcode(widget.friend);
                       if (qrcodeId == null) return;
-                      setState(() {
-                        friendCreateViewModel.qrcodeIds.add(qrcodeId);
-                      });
                     },
                     icon: const Icon(Icons.add),
                     label: const Text('QRcode'),
@@ -123,7 +127,8 @@ class _FriendCreateViewState extends State<FriendCreateView> {
               Flexible(
                   flex: 6,
                   child: QrcodeListPreview(
-                    qrcodes: friendCreateViewModel.qrcodesPreview,
+                    qrcodes: friendList.qrcodes,
+                    isEdit: true,
                   )),
             ],
           ),

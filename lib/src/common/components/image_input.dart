@@ -74,6 +74,9 @@ class _ImageInputState extends State<ImageInput> {
   }
 
   Future<void> setPicture() async {
+    if (imageInputManager.selectedImage == null) {
+      return;
+    }
     setState(() {
       _selectedImage = File(imageInputManager.selectedImage!.path);
     });

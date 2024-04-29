@@ -35,8 +35,8 @@ class _QrcodeCreateView extends State<QrcodeCreateView> {
   }
 
   _buildBody(BuildContext context) {
-    QrcodeList qrcodeList = context.watch<QrcodeList>();
-    qrcodeCreateViewModel.qrcodeList = qrcodeList;
+    // QrcodeList qrcodeList = context.watch<QrcodeList>();
+    // qrcodeCreateViewModel.qrcodeList = qrcodeList;
     return Consumer<QrcodeList>(
       builder: (_, QrcodeList viewmodel, __) {
         return Container(
@@ -72,7 +72,6 @@ class _QrcodeCreateView extends State<QrcodeCreateView> {
                   },
                   child: const Text('Save'),
                 ),
-                Text(qrcodeList.qrcodes.length.toString())
               ],
             ),
           ),

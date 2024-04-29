@@ -12,7 +12,7 @@ class FriendService implements FriendServiceInterface {
   Future<Friend> createFriend(Friend friend) async {
     final box = await _friendBox;
     try {
-      await box.add(friend);
+      await box.put(friend.id, friend);
       await box.close();
       return friend;
     } catch (e) {
@@ -35,17 +35,20 @@ class FriendService implements FriendServiceInterface {
   }
 
   @override
-  Future<Friend> getFriend(String friendId) async {
+  Future<Friend?> getFriend(String friendId) async {
     final box = await _friendBox;
+    if (box.isOpen) {
+      debugPrint('Box is open');
+    }
     Friend? friend;
     try {
       friend = box.get(friendId);
-      await box.close();
+      debugPrint('Friend: $friend');
+      return friend;
     } catch (e) {
       debugPrint('Error getting friend: $e');
       return Future.error('Error getting friend');
     }
-    return friend!;
   }
 
   @override
@@ -57,10 +60,11 @@ class FriendService implements FriendServiceInterface {
   }
 
   @override
-  Future<Friend> upDateFriend(Friend friend, int index) async {
+  Future<Friend> upDateFriend(Friend friend) async {
     final box = await _friendBox;
     try {
-      await box.putAt(index, friend);
+      // await box.putAt(index, friend);
+      await box.put(friend.id, friend);
       await box.close();
       return friend;
     } catch (e) {
