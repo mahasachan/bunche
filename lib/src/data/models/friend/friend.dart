@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,6 +15,9 @@ class Friend {
 
   @HiveField(2)
   List<String>? qrcodeIds;
+
+  // @HiveField(3)
+  // List<String>? groupIds;
 
   Friend({
     required this.name,
@@ -38,11 +40,7 @@ class Friend {
 
   void tryToUpdateFriend(String newName, List<String>? newQrcodesId) {
     name = newName;
-    // tryToAddQrcodeId(newQrcodeId);
-    // qrcodeIds = newQrcodesId;
-    debugPrint('in tryToUpdateFriend in friend.dart');
-    debugPrint('qrcodeIds: $qrcodeIds');
-    // if (!qrcodeIds!.contains(newQrcodeId)) qrcodeIds!.add(newQrcodeId);
+    qrcodeIds = newQrcodesId;
   }
 
   void tryToAddQrcodeId(String qrcodeId) {

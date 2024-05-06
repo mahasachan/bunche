@@ -43,7 +43,6 @@ class FriendService implements FriendServiceInterface {
     Friend? friend;
     try {
       friend = box.get(friendId);
-      debugPrint('Friend: $friend');
       return friend;
     } catch (e) {
       debugPrint('Error getting friend: $e');

@@ -1,21 +1,29 @@
 import 'package:bunche/src/common/components/friend_item.dart';
+import 'package:bunche/src/data/models/friend/friend.dart';
 import 'package:bunche/src/data/models/friend_list.dart';
+import 'package:bunche/src/data/models/group/group.dart';
 import 'package:bunche/src/modules/friend/list/friend_list_view_model.dart';
 import 'package:bunche/src/utils/navigate/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FriendListView extends StatefulWidget {
-  const FriendListView({super.key});
+  const FriendListView(
+      {super.key, this.isFromGroup = false, this.friendsInGroup, this.group});
+  final bool isFromGroup;
+  final List<Friend>? friendsInGroup;
+  final Group? group;
 
   @override
   State<FriendListView> createState() => _FriendListState();
 }
 
 class _FriendListState extends State<FriendListView> {
+  late List<Friend> friendsData;
+  late bool isFetching;
   FriendListViewModel friendListViewModel =
       FriendListViewModel(NavigationService.instance);
-  // @override
+
   @override
   void initState() {
     super.initState();
@@ -47,47 +55,55 @@ class _FriendListState extends State<FriendListView> {
   _buildBody() {
     return Consumer<FriendList>(
       builder: (context, friendListData, _) {
-        if (friendListData.isFetchingFriends) {
+        if (widget.isFromGroup &&
+            widget.friendsInGroup != null &&
+            widget.group != null) {
+          // friendsData = widget.friendsInGroup!;
+          friendListData.friends = widget.friendsInGroup!;
+          friendsData = friendListData.friends;
+          isFetching = friendListViewModel.groupList.isFetchingGroups;
+        } else {
+          friendsData = friendListData.friends;
+          isFetching = friendListData.isFetchingFriends;
+        }
+        if (isFetching) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        if (friendListData.friends.isEmpty) {
+        if (friendsData.isEmpty) {
           return const Center(
             child: Text('You don\'t have any friends'),
           );
         }
-        return Container(
-            decoration: const BoxDecoration(color: Colors.amber),
-            child: friendListView(friendListData));
+        return Container(child: friendListView(friendsData));
       },
     );
   }
 
-  ListView friendListView(FriendList friendListData) {
+  ListView friendListView(List<Friend> friendListData) {
     return ListView.builder(
       // reverse: true,
       itemBuilder: (context, index) {
+        final Friend friend = friendListData[index];
         return FriendItem(
           index: index,
-          friend: friendListData.friends[index],
+          friend: friend,
           onUpdateFriend: (friend, index) {
-            // viewModel.navigateToUpdate(friend, index);
             friendListViewModel.navigateToEditFriend(friend, index);
           },
-          onDeleteFriend: (friend, index) {
-            // friendListData.tryTodeleteFriend(friend);
-            friendListViewModel.tryToDeleteFriend(friend);
-            // viewModel.deleteFriend(friend, index);
+          onDeleteFriend: (friend) {
+            friendListViewModel.tryToDeleteFriendIdFromGroup(friend.id);
+            friendListViewModel.tryToDeleteFriend(
+                friend, widget.friendsInGroup, widget.group);
           },
           onSelectFriend: (id) {
             friendListViewModel.navigateToFriendDetails(
-                friendListData.friends[index].id,
-                friendListData.friends[index].name);
+                friendListData[index].id, friendListData[index].name);
           },
         );
       },
-      itemCount: friendListData.friends.length,
+      itemCount: friendListData.length,
     );
   }
 

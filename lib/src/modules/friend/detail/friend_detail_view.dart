@@ -42,7 +42,7 @@ class _FriendDetailViewState extends State<FriendDetailView> {
   _buildBody(BuildContext context) {
     return Consumer<FriendList>(
         builder: (BuildContext context, FriendList value, _) {
-      return QrcodeListPreview(qrcodes: value.qrcodes);
+      return QrcodeListPreview(qrcodes: value.qrcodesPreview);
     });
   }
 }

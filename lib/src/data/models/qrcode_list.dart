@@ -12,22 +12,29 @@ class QrcodeList extends ChangeNotifier {
     tryToFetchQrcodes();
   }
 
-  void tryAddQrcode(QRCode qrcode) {
-    qrcode.tryAddQrcode(qrcode);
+  Future<void> tryAddQrcode(QRCode qrcode) async {
+    await _qrcodeService.createQRcode(qrcode);
     _qrcodes.add(qrcode);
-    _qrcodeService.createQRcode(qrcode);
+    await tryToFetchQrcodes();
     notifyListeners();
   }
 
   Future<void> tryRemoveQrcode(String qrcodeId) async {
-    final qrcodeTarget = _qrcodes.firstWhere((qrcode) => qrcode.id == qrcodeId);
-    qrcodes.remove(qrcodeTarget);
-    await _qrcodeService.deleteQRcode(qrcodeId);
+    await tryToFetchQrcodes();
+    if (_qrcodes.isEmpty) return;
+    final qrcodeTarget = await _qrcodeService.getQRcode(qrcodeId);
+    await _qrcodeService.deleteQRcode(qrcodeTarget);
+    tryToFetchQrcodes();
+    _qrcodes.remove(qrcodeTarget);
     notifyListeners();
   }
 
-  void tryToFetchQrcodes() async {
-    _qrcodes = await _qrcodeService.getQrcodes();
+  Future<void> tryToFetchQrcodes() async {
+    final allQrcodes = await _qrcodeService.getQrcodes();
+    _qrcodes = [];
+    for (final qrcode in allQrcodes) {
+      _qrcodes.add(qrcode);
+    }
     notifyListeners();
   }
 

@@ -3,7 +3,12 @@ import 'package:bunche/src/data/models/qrcode/qrcode.dart';
 import 'package:flutter/material.dart';
 
 class QrcodeListPreview extends StatelessWidget {
-  const QrcodeListPreview({super.key, required this.qrcodes, this.isEdit});
+  const QrcodeListPreview({
+    super.key,
+    required this.qrcodes,
+    this.isEdit,
+  });
+
   final bool? isEdit;
   final List<QRCode> qrcodes;
 
@@ -24,6 +29,7 @@ class QrcodeListPreview extends StatelessWidget {
               accountName: qrcodes[index].accountName,
               qrCode: qrcodes[index].qrCodeImage,
               index: index,
+              // deleteQRCode: (int index) {},
             );
           }),
     );

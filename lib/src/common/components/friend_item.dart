@@ -6,17 +6,18 @@ class FriendItem extends StatelessWidget {
       {super.key,
       // required this.onSelectFriend,
       required this.friend,
-      required this.onDeleteFriend,
-      required this.index,
-      required this.onSelectFriend,
-      required this.onUpdateFriend});
+      this.onDeleteFriend,
+      this.index,
+      this.onSelectFriend,
+      this.onUpdateFriend,
+      this.isAddGroup = false});
 
   final Friend friend;
-  // final String friendId;
-  final int index;
-  final void Function(String friendId) onSelectFriend;
-  final void Function(Friend friend, int index) onDeleteFriend;
-  final void Function(Friend newFriend, int index) onUpdateFriend;
+  final bool? isAddGroup;
+  final int? index;
+  final void Function(String friendId)? onSelectFriend;
+  final void Function(Friend friend)? onDeleteFriend;
+  final void Function(Friend newFriend, int index)? onUpdateFriend;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class FriendItem extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       child: InkWell(
         onTap: () {
-          onSelectFriend(friend.id);
+          onSelectFriend!(friend.id);
         },
         child: ListTile(
           leading: CircleAvatar(
@@ -40,29 +41,38 @@ class FriendItem extends StatelessWidget {
           title: Text(friend.name),
           // subtitle: Text(friend.qrCodes.length.toString()),
           // subtitle: Text(friend.groupName![0]),
-          trailing: PopupMenuButton(
-              child: const Icon(Icons.more_vert),
-              itemBuilder: (context) {
-                return <PopupMenuEntry<String>>[
-                  const PopupMenuItem(
-                    value: 'Edit',
-                    child: Text('Edit'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'Delete',
-                    child: Text('Delete'),
-                  ),
-                ];
-              },
-              onSelected: (String value) {
-                if (value == 'Edit') {
-                  onUpdateFriend(friend, index);
-                } else if (value == 'Delete') {
-                  onDeleteFriend(friend, index);
-                }
-              }),
+          trailing: isAddGroup! ? _buildTrailingAddGroup() : _buildTrailing(),
         ),
       ),
     );
+  }
+
+  _buildTrailingAddGroup() {
+    return TextButton(onPressed: () {}, child: const Text('Add'));
+  }
+
+  PopupMenuButton<String> _buildTrailing() {
+    return PopupMenuButton(
+        child: const Icon(Icons.more_vert),
+        itemBuilder: (context) {
+          return <PopupMenuEntry<String>>[
+            const PopupMenuItem(
+              value: 'Edit',
+              child: Text('Edit'),
+            ),
+            const PopupMenuItem(
+              value: 'Delete',
+              child: Text('Delete'),
+            ),
+          ];
+        },
+        onSelected: (String value) {
+          if (value == 'Edit') {
+            onUpdateFriend!(friend, index!);
+          } else if (value == 'Delete') {
+            debugPrint('Delete');
+            onDeleteFriend!(friend);
+          }
+        });
   }
 }

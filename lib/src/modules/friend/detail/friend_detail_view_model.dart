@@ -11,7 +11,6 @@ class FriendDetailViewModel {
 
   List<QRCode> _qrcodes = [];
   List<QRCode> get qrcodes => _qrcodes;
-  // Friend friend = Friend(name: '', qrcodeIds: []);
 
   FriendDetailViewModel({required this.friendId}) {
     tryToFetchFriend(friendId);

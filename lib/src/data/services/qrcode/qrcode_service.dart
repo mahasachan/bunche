@@ -11,21 +11,19 @@ class QrcodeService implements QrcodeServiceInterface {
   Future<String> createQRcode(QRCode qrCode) async {
     final box = await _qrCodeBox;
     try {
-      // await box.add(qrCode);
       await box.put(qrCode.id, qrCode);
       await box.close();
       return qrCode.id;
-      // return index;
     } catch (e) {
       return Future.error('Error creating QRCode');
     }
   }
 
   @override
-  Future<bool> deleteQRcode(String qrCodeId) async {
+  Future<bool> deleteQRcode(QRCode qrcode) async {
     final box = await _qrCodeBox;
     try {
-      await box.delete(qrCodeId);
+      await box.delete(qrcode.id);
       return true;
     } catch (e) {
       return false;
@@ -38,10 +36,10 @@ class QrcodeService implements QrcodeServiceInterface {
     QRCode? qrCode;
     try {
       qrCode = box.get(qrCodeId);
+      return qrCode!;
     } catch (e) {
       return Future.error('Error getting QRCode');
     }
-    return qrCode!;
   }
 
   @override
@@ -55,6 +53,7 @@ class QrcodeService implements QrcodeServiceInterface {
     final box = await _qrCodeBox;
     try {
       await box.putAt(index, qrCode);
+      // debugPrint('upDateQRcode: ${qrCode.id}');
       return qrCode;
     } catch (e) {
       return Future.error('Error updating QRCode');

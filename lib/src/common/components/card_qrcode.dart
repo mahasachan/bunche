@@ -8,58 +8,39 @@ class CardQrcode extends StatelessWidget {
     required this.qrCode,
     required this.index,
     this.isEdit = false,
+    // required this.deleteQRCode,
+    // this.tryToRemoveQrcode,
+    // required this.qrcodeId,
   });
 
   final String accountName;
   final Uint8List qrCode;
   final int index;
   final bool? isEdit;
-
-  // final void Function(int index) onDeleteQrcode;
-  // final FriendViewModel friendViewModel;
+  // final String qrcodeId;
+  // final void Function(int index)? deleteQRCode;
+  // final void Function(String qrcodeId)? tryToRemoveQrcode;
 
   @override
   Widget build(BuildContext context) {
-    Widget contentBottom = const SizedBox(height: 40);
-    if (isEdit ?? false) {
-      contentBottom = ButtonBar(
-        alignment: MainAxisAlignment.end,
+    return InkWell(
+      onTap: () {},
+      child: Column(
         children: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('Edit'),
-          ),
-          TextButton(
-            onPressed: () {
-              // friendViewmodel.deleteQRCode(index);
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      children: [
-        Card(
-          color: Colors.white,
-          clipBehavior: Clip.antiAlias,
-          elevation: 5,
-          child: Column(
-            children: [
-              ListTile(
-                title: Text(accountName),
-                subtitle: Text(
-                  'Secondary Text',
-                  style: TextStyle(color: Colors.black.withOpacity(0.6)),
+          Card(
+            color: Colors.white,
+            clipBehavior: Clip.antiAlias,
+            elevation: 5,
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(accountName),
+                  subtitle: Text(
+                    'Secondary Text',
+                    style: TextStyle(color: Colors.black.withOpacity(0.6)),
+                  ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushNamed('/QrcodeDetail',
-                      arguments: [accountName, qrCode]);
-                },
-                child: SizedBox(
+                SizedBox(
                   height: 200,
                   width: double.infinity,
                   child: Image.memory(
@@ -69,12 +50,29 @@ class CardQrcode extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              contentBottom,
-            ],
+                // _buildButtonModify()
+                const SizedBox(height: 30)
+              ],
+            ),
           ),
+          const SizedBox(height: 20)
+        ],
+      ),
+    );
+  }
+
+  ButtonBar _buildButtonModify() {
+    return ButtonBar(
+      alignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: () {},
+          child: const Text('Edit'),
         ),
-        const SizedBox(height: 20)
+        TextButton(
+          onPressed: () {},
+          child: const Text('Delete'),
+        ),
       ],
     );
   }

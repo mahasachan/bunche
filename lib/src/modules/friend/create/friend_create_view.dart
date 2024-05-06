@@ -1,16 +1,18 @@
-import 'package:bunche/src/common/components/qrcode_list_preview.dart';
+// import 'dart:typed_data';
 import 'package:bunche/src/data/models/friend/friend.dart';
 import 'package:bunche/src/data/models/friend_list.dart';
-// import 'package:bunche/src/data/models/qrcode_list.dart';
+import 'package:bunche/src/data/models/qrcode/qrcode.dart';
 import 'package:bunche/src/modules/friend/create/friend_create_view_model.dart';
 import 'package:bunche/src/utils/navigate/navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FriendCreateView extends StatefulWidget {
-  const FriendCreateView({super.key, this.friend, this.index});
+  const FriendCreateView(
+      {super.key, this.friend, this.index, this.isEdit = false});
   final Friend? friend;
   final int? index;
+  final bool isEdit;
 
   @override
   State<FriendCreateView> createState() => _FriendCreateViewState();
@@ -19,6 +21,16 @@ class FriendCreateView extends StatefulWidget {
 class _FriendCreateViewState extends State<FriendCreateView> {
   FriendCreateViewModel friendCreateViewModel =
       FriendCreateViewModel(NavigationService.instance);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEdit) {
+      friendCreateViewModel.tryToFetchQrcodesWithFriendId(widget.friend!.id);
+      friendCreateViewModel.nameController.text = widget.friend!.name;
+      friendCreateViewModel.qrcodeIds.addAll(widget.friend!.qrcodeIds ?? []);
+    }
+  }
 
   @override
   void dispose() {
@@ -41,7 +53,9 @@ class _FriendCreateViewState extends State<FriendCreateView> {
         TextButton(
             onPressed: () {
               if (friendCreateViewModel.formKey.currentState!.validate()) {
-                friendCreateViewModel.onCreateNewFriend();
+                widget.isEdit
+                    ? friendCreateViewModel.onUpdateFriend(widget.friend!)
+                    : friendCreateViewModel.onCreateNewFriend();
               }
             },
             child: const Text(
@@ -75,31 +89,7 @@ class _FriendCreateViewState extends State<FriendCreateView> {
                     color: Theme.of(context).colorScheme.onBackground),
               ),
               const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // viewmodel.navigationToSelectGroup();
-                    },
-                    child: const Text('Select Group'),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final qrcodeId =
-                          await friendCreateViewModel.navigateToAddQrcode();
-                      if (qrcodeId == null) return;
-                      setState(() {
-                        friendCreateViewModel.qrcodeIds.add(qrcodeId);
-                      });
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('QRcode'),
-                  ),
-                ],
-              ),
+              _buildButtonRow(),
               const SizedBox(
                 height: 20,
               ),
@@ -120,15 +110,117 @@ class _FriendCreateViewState extends State<FriendCreateView> {
                 ),
               ),
               const SizedBox(height: 10),
-              Flexible(
-                  flex: 6,
-                  child: QrcodeListPreview(
-                    qrcodes: friendCreateViewModel.qrcodesPreview,
-                  )),
+              _buildQrcodeList(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Row _buildButtonRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(width: 8),
+        ElevatedButton.icon(
+          onPressed: () async {
+            final qrcodeId = await friendCreateViewModel.navigateToAddQrcode();
+            if (qrcodeId == null) return;
+            setState(() {
+              friendCreateViewModel.qrcodeIds.add(qrcodeId);
+            });
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('QRcode'),
+        ),
+      ],
+    );
+  }
+
+  Flexible _buildQrcodeList() {
+    return Flexible(
+        flex: 6,
+        child: SizedBox(
+          width: double.infinity,
+          child: ListView.builder(
+              itemCount: friendCreateViewModel.qrcodesPreview.length,
+              itemBuilder: (context, index) {
+                if (friendCreateViewModel.qrcodesPreview.isEmpty) {
+                  return const Center(
+                    child: Text('No QR Codes'),
+                  );
+                }
+                // final accountName =
+                // friendCreateViewModel.qrcodesPreview[index].accountName;
+                // final qrcodeImage =
+                // friendCreateViewModel.qrcodesPreview[index].qrCodeImage;
+                // final qrcodeId = friendCreateViewModel.qrcodesPreview[index].id;
+                return _buildQrcodeCard(
+                    friendCreateViewModel.qrcodesPreview[index]);
+              }),
+        ));
+  }
+
+  Column _buildQrcodeCard(
+    QRCode qrcode,
+  ) {
+    return Column(
+      children: [
+        Card(
+          color: Colors.white,
+          clipBehavior: Clip.antiAlias,
+          elevation: 5,
+          child: Column(
+            children: [
+              ListTile(
+                title: Text(qrcode.accountName),
+                subtitle: Text(
+                  'Secondary Text',
+                  style: TextStyle(color: Colors.black.withOpacity(0.6)),
+                ),
+              ),
+              SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Image.memory(
+                  qrcode.qrCodeImage,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              _buildButtonBar(qrcode)
+            ],
+          ),
+        ),
+        const SizedBox(height: 20)
+      ],
+    );
+  }
+
+  ButtonBar _buildButtonBar(QRCode qrcode) {
+    return ButtonBar(
+      alignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: () {},
+          child: const Text('Edit'),
+        ),
+        TextButton(
+          onPressed: () {
+            if (widget.isEdit) {
+              friendCreateViewModel.tryToRemoveQrcodeInUpdate(qrcode);
+            }
+            setState(() {
+              friendCreateViewModel.qrcodeIds.remove(qrcode.id);
+              friendCreateViewModel.qrcodesPreview.remove(qrcode);
+            });
+          },
+          child: const Text('Delete'),
+        ),
+      ],
     );
   }
 }

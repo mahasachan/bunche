@@ -16,8 +16,6 @@ class FriendModifyViewModel {
   final NavigationService _navigationService;
   FriendModifyViewModel(this._navigationService, this.friendId) {
     tryToFetchQrcodes(friendId);
-    // friendList.tryToFetchQrcodes(friendId);
-    // _qrcodesView = friendList.qrcodes;
   }
 
   final List<String> _qrcodeIds = [];
@@ -65,7 +63,7 @@ class FriendModifyViewModel {
 
   Future<void> tryToFetchQrcode(String qrcodeId) async {
     final qrcode = await qrcodeList.tryToFetchQrcode(qrcodeId);
-    friendList.qrcodes.add(qrcode);
+    friendList.qrcodesPreview.add(qrcode);
     _qrcodesView.add(qrcode);
   }
 

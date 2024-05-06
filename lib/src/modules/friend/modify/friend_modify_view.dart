@@ -124,12 +124,6 @@ class _FriendModifyViewState extends State<FriendModifyView> {
                 ),
               ),
               const SizedBox(height: 10),
-              Flexible(
-                  flex: 6,
-                  child: QrcodeListPreview(
-                    qrcodes: friendList.qrcodes,
-                    isEdit: true,
-                  )),
             ],
           ),
         ),
