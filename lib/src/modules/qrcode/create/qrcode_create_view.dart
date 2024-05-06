@@ -25,7 +25,13 @@ class _QrcodeCreateView extends State<QrcodeCreateView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppbar(), body: _buildBody(context));
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          appBar: _buildAppbar(),
+          body: _buildBody(context)),
+    );
   }
 
   AppBar _buildAppbar() {
@@ -35,8 +41,6 @@ class _QrcodeCreateView extends State<QrcodeCreateView> {
   }
 
   _buildBody(BuildContext context) {
-    // QrcodeList qrcodeList = context.watch<QrcodeList>();
-    // qrcodeCreateViewModel.qrcodeList = qrcodeList;
     return Consumer<QrcodeList>(
       builder: (_, QrcodeList viewmodel, __) {
         return Container(
