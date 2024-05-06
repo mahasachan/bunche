@@ -18,13 +18,12 @@ class _GroupModifyViewState extends State<GroupListView> {
   void initState() {
     super.initState();
     groupListViewModel = GroupListViewModel(NavigationService.instance);
-    debugPrint(
-        'groupName: ${groupListViewModel.groupList.groups.map((e) => e.groupName)}');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: _buildAppbar(),
       body: _buildBody(),
     );
@@ -47,7 +46,6 @@ class _GroupModifyViewState extends State<GroupListView> {
 
   _buildBody() {
     groupListViewModel.groupList = context.watch<GroupList>();
-
     return Consumer<GroupList>(
       builder: (context, groupListModel, child) {
         if (groupListModel.isFetchingGroups) {
@@ -62,83 +60,68 @@ class _GroupModifyViewState extends State<GroupListView> {
           );
         }
 
-        return Column(
-          children: [
-            Container(
-              height: 100,
-              decoration: BoxDecoration(color: Colors.green.shade100),
-              child: Column(
-                children: [
-                  Text('${groupListModel.groups.length}'),
-                  Text('${groupListViewModel.groupList.groups.length}')
-                ],
-              ),
-            ),
-            Container(
-              height: 300,
-              decoration: BoxDecoration(color: Colors.green.shade100),
-              child: ListView.builder(
-                  itemCount: groupListModel.groups.length,
-                  itemBuilder: (context, index) {
-                    // final groups = groupListViewModel.groupList.groups;
-                    // final group = groups[index];
-                    // final groupName = group.groupName;
-                    // final groups = groupListModel.groups;
-                    final group = groupListModel.groups[index];
-                    final groupName = group.groupName;
-                    return Column(
-                      children: [
-                        Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                groupListViewModel
-                                    .navigateToGroupDetails(group);
-                              },
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(10),
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.primaries[
-                                      groupName.codeUnitAt(0) %
-                                          Colors.primaries.length],
-                                  foregroundColor: Colors.white,
-                                  radius: 30,
-                                  child: Text(groupName[0]),
-                                ),
-                                title: Text(groupName),
-                                trailing: PopupMenuButton(
-                                    child: const Icon(Icons.more_vert),
-                                    itemBuilder: (context) {
-                                      return <PopupMenuEntry<String>>[
-                                        const PopupMenuItem(
-                                          value: 'Edit',
-                                          child: Text('Edit'),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'Delete',
-                                          child: Text('Delete'),
-                                        ),
-                                      ];
-                                    },
-                                    onSelected: (String value) async {
-                                      if (value == 'Edit') {
-                                        await groupListViewModel
-                                            .navigateToUpdateGroup(group);
-                                      } else if (value == 'Delete') {
-                                        groupListViewModel
-                                            .tryToDeleteGroup(group);
-                                      }
-                                    }),
+        return Flexible(
+          flex: 1,
+          child: Container(
+            // height: MediaQuery.of(context).size.height -
+            //     MediaQuery.of(context).viewInsets.bottom,
+            child: ListView.builder(
+                // keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                itemCount: groupListModel.groups.length,
+                itemBuilder: (context, index) {
+                  final group = groupListModel.groups[index];
+                  final groupName = group.groupName;
+                  return Column(
+                    children: [
+                      Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              groupListViewModel.navigateToGroupDetails(group);
+                            },
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(10),
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.primaries[
+                                    groupName.codeUnitAt(0) %
+                                        Colors.primaries.length],
+                                foregroundColor: Colors.white,
+                                radius: 30,
+                                child: Text(groupName[0]),
                               ),
+                              title: Text(groupName),
+                              trailing: PopupMenuButton(
+                                  child: const Icon(Icons.more_vert),
+                                  itemBuilder: (context) {
+                                    return <PopupMenuEntry<String>>[
+                                      const PopupMenuItem(
+                                        value: 'Edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'Delete',
+                                        child: Text('Delete'),
+                                      ),
+                                    ];
+                                  },
+                                  onSelected: (String value) async {
+                                    if (value == 'Edit') {
+                                      await groupListViewModel
+                                          .navigateToUpdateGroup(group);
+                                    } else if (value == 'Delete') {
+                                      groupListViewModel
+                                          .tryToDeleteGroup(group);
+                                    }
+                                  }),
                             ),
-                          ],
-                        )
-                        // Text(value.groups[index].groupName),
-                      ],
-                    );
-                  }),
-            ),
-          ],
+                          ),
+                        ],
+                      )
+                      // Text(value.groups[index].groupName),
+                    ],
+                  );
+                }),
+          ),
         );
       },
     );
